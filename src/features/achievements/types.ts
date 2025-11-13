@@ -1,10 +1,8 @@
 import { z } from 'zod';
 
-// Rarities according to backend
 export const achievementRarityEnum = z.enum(['common', 'special', 'epic', 'legendary']);
 export type RarityType = z.infer<typeof achievementRarityEnum>;
 
-// Condition types according to backend
 export const conditionTypeEnum = z.enum([
   'complete_lessons',
   'streak_days',
@@ -15,7 +13,6 @@ export const conditionTypeEnum = z.enum([
 ]);
 export type ConditionType = z.infer<typeof conditionTypeEnum>;
 
-// Condition schema
 export const conditionSchema = z.object({
   type: conditionTypeEnum,
   value: z.union([z.number().positive(), z.string().min(1)])
@@ -23,7 +20,6 @@ export const conditionSchema = z.object({
 
 export type ConditionProps = z.infer<typeof conditionSchema>;
 
-// Achievement schema
 export const achievementSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -37,7 +33,6 @@ export const achievementSchema = z.object({
 
 export type Achievement = z.infer<typeof achievementSchema>;
 
-// Create achievement schema
 export const createAchievementSchema = z.object({
   title: z.string().min(1, 'Título es requerido').max(100, 'Título no puede exceder 100 caracteres'),
   rarity: achievementRarityEnum,
@@ -48,6 +43,5 @@ export const createAchievementSchema = z.object({
 
 export type CreateAchievementForm = z.infer<typeof createAchievementSchema>;
 
-// Update achievement schema (partial)
 export const updateAchievementSchema = createAchievementSchema.partial();
 export type UpdateAchievementForm = z.infer<typeof updateAchievementSchema>;
