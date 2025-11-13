@@ -1,22 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { 
-  BookOpen, 
-  Users, 
-  Trophy, 
-  FileText, 
-  TrendingUp,
-  Activity,
-  ArrowUpRight,
-  BarChart3
-} from 'lucide-react'
-import { CourseApiService } from '@/features/courses/CourseApiService'
-import { UserApiService } from '@/features/users/UserApiService'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AchievementApiService } from '@/features/achievements/AchievementApiService'
+import { CourseApiService } from '@/features/courses/CourseApiService'
 import { LessonApiService } from '@/features/lessons/LessonApiService'
+import { UserApiService } from '@/features/users/UserApiService'
 import { usePermissions } from '@/hooks/use-permissions'
 import { Link } from '@tanstack/react-router'
-import { Button } from '@/components/ui/button'
+import {
+  Activity,
+  ArrowUpRight,
+  BookOpen,
+  FileText,
+  Trophy,
+  Users
+} from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 
 interface Stats {
   totalCourses: number
@@ -69,7 +66,6 @@ const DashboardOverview: React.FC = () => {
       icon: BookOpen,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      change: '+12%',
       changeType: 'positive' as const,
       link: '/dashboard/courses'
     },
@@ -79,7 +75,6 @@ const DashboardOverview: React.FC = () => {
       icon: Users,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
-      change: '+8%',
       changeType: 'positive' as const,
       link: '/dashboard/users'
     },
@@ -89,7 +84,6 @@ const DashboardOverview: React.FC = () => {
       icon: FileText,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
-      change: '+23%',
       changeType: 'positive' as const,
       link: '/dashboard/lessons'
     },
@@ -99,7 +93,6 @@ const DashboardOverview: React.FC = () => {
       icon: Trophy,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
-      change: '+5%',
       changeType: 'positive' as const,
       link: '/dashboard/achievements'
     }
@@ -177,9 +170,6 @@ const DashboardOverview: React.FC = () => {
                     {stat.value}
                   </div>
                   <div className="flex items-center text-sm mt-2">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-green-600 font-medium">{stat.change}</span>
-                    <span className="text-gray-500 ml-1">vs. mes anterior</span>
                   </div>
                 </CardContent>
               </Card>
@@ -189,19 +179,19 @@ const DashboardOverview: React.FC = () => {
       </div>
 
       {/* Quick Actions & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5 text-blue-600" />
-              Acciones Rápidas
+              Acciones 
             </CardTitle>
             <CardDescription>
-              Accede rápidamente a las funciones principales
+              Accede a las funciones principales
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-3">
+          <CardContent className="grid grid-cols-2 gap-3">
             {quickActions.map((action) => {
               const Icon = action.icon
               return (
@@ -225,7 +215,7 @@ const DashboardOverview: React.FC = () => {
         </Card>
 
         {/* Recent Activity / Charts Placeholder */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-purple-600" />
@@ -290,49 +280,8 @@ const DashboardOverview: React.FC = () => {
               Ver toda la actividad
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
-
-      {/* System Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Estado del Sistema</CardTitle>
-          <CardDescription>Información general de la plataforma</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-green-50 rounded-lg flex items-center justify-center">
-                <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">Sistema Operativo</p>
-                <p className="text-xs text-gray-500">Todos los servicios funcionando</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Activity className="h-6 w-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">Última Actualización</p>
-                <p className="text-xs text-gray-500">Hace 5 minutos</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">Rendimiento</p>
-                <p className="text-xs text-gray-500">Óptimo (98%)</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

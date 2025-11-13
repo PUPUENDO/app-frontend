@@ -37,10 +37,6 @@ const LoginForm: React.FC = () => {
       setLoading(true)
       await authService.loginWithEmailAndPassword(data.email, data.password)
       
-      toast.success('¡Bienvenido al Panel Administrativo!', {
-        description: 'Has iniciado sesión correctamente',
-      })
-      
       // Redirigir siempre al dashboard administrativo
       navigate({ to: '/dashboard' })
     } catch (error: any) {
@@ -58,10 +54,6 @@ const LoginForm: React.FC = () => {
     try {
       setLoading(true)
       await authService.loginWithGoogle()
-      
-      toast.success('¡Bienvenido al Panel Administrativo!', {
-        description: 'Has iniciado sesión correctamente',
-      })
       
       // Redirigir siempre al dashboard administrativo
       navigate({ to: '/dashboard' })
