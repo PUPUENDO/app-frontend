@@ -5,9 +5,14 @@ import {
   Trophy,
   Users,
   LogOut,
-  GraduationCap,
   Menu,
-  X
+  X,
+  LayoutDashboard,
+  FileText,
+  List,
+  Layers,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -15,40 +20,85 @@ import { useAuthStore } from '@/store/auth'
 import { authService } from '@/features/auth/AuthService'
 import { useState } from 'react'
 
+interface SubMenuItem {
+  id: string
+  label: string
+  path: string
+  icon?: React.ElementType
+}
+
 interface MenuItem {
   id: string
   label: string
   icon: React.ElementType
-  path: string
+  path?: string
   roles?: string[]
+  badge?: string
+  subItems?: SubMenuItem[]
 }
 
 const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true)
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['content'])
   const location = useLocation()
   const { user } = useAuthStore()
 
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(id => id !== groupId)
+        : [...prev, groupId]
+    )
+  }
+
+  const isGroupExpanded = (groupId: string) => expandedGroups.includes(groupId)
+
   const menuItems: MenuItem[] = [
     {
-      id: 'learn',
-      label: 'Aprender',
-      icon: GraduationCap,
-      path: '/dashboard/learn',
-      roles: ['student', 'admin']
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/dashboard',
+      roles: ['admin']
     },
     {
-      id: 'courses',
-      label: 'Cursos',
+      id: 'content',
+      label: 'Gestión de Contenido',
       icon: BookOpen,
-      path: '/dashboard/courses',
-      roles: ['admin']
+      roles: ['admin'],
+      subItems: [
+        {
+          id: 'courses',
+          label: 'Cursos',
+          path: '/dashboard/courses',
+          icon: BookOpen
+        },
+        {
+          id: 'topics',
+          label: 'Temas',
+          path: '/dashboard/topics',
+          icon: List
+        },
+        {
+          id: 'subtopics',
+          label: 'Subtemas',
+          path: '/dashboard/subtopics',
+          icon: Layers
+        },
+        {
+          id: 'lessons',
+          label: 'Lecciones',
+          path: '/dashboard/lessons',
+          icon: FileText
+        }
+      ]
     },
     {
       id: 'achievements',
       label: 'Logros',
       icon: Trophy,
       path: '/dashboard/achievements',
-      roles: ['student', 'admin']
+      roles: ['admin']
     },
     {
       id: 'users',
@@ -83,7 +133,7 @@ const Sidebar: React.FC = () => {
           isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
         )}>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            🎓 LearnApp
+            📚 Admin Panel
           </h2>
         </div>
         <Button
@@ -114,31 +164,96 @@ const Sidebar: React.FC = () => {
       )}
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         {filteredMenuItems.map((item) => {
           const Icon = item.icon
-          const isActive = location.pathname === item.path
+          const hasSubItems = item.subItems && item.subItems.length > 0
+          const isGroupOpen = isGroupExpanded(item.id)
+          
+          // Si el item tiene subitems, es un grupo expandible
+          if (hasSubItems) {
+            return (
+              <div key={item.id} className="space-y-1">
+                {/* Group Header */}
+                <button
+                  onClick={() => toggleGroup(item.id)}
+                  className={cn(
+                    'flex items-center w-full px-3 py-2.5 rounded-lg transition-all duration-200 text-blue-100 hover:bg-blue-700 hover:text-white',
+                    !isExpanded && 'justify-center'
+                  )}
+                >
+                  <Icon size={18} className="flex-shrink-0" />
+                  {isExpanded && (
+                    <>
+                      <span className="ml-3 font-medium text-sm flex-1 text-left whitespace-nowrap">
+                        {item.label}
+                      </span>
+                      {isGroupOpen ? (
+                        <ChevronDown size={16} className="flex-shrink-0" />
+                      ) : (
+                        <ChevronRight size={16} className="flex-shrink-0" />
+                      )}
+                    </>
+                  )}
+                </button>
+
+                {/* Subitems */}
+                {isExpanded && isGroupOpen && (
+                  <div className="ml-4 space-y-1 border-l-2 border-blue-700 pl-2">
+                    {item.subItems?.map((subItem) => {
+                      const SubIcon = subItem.icon
+                      const isActive = location.pathname === subItem.path
+                      
+                      return (
+                        <Link
+                          key={subItem.id}
+                          to={subItem.path}
+                          className={cn(
+                            'flex items-center px-3 py-2 rounded-lg transition-all duration-200 text-sm',
+                            isActive 
+                              ? 'bg-white text-blue-600 shadow-md font-medium' 
+                              : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                          )}
+                        >
+                          {SubIcon && <SubIcon size={16} className="flex-shrink-0 mr-2" />}
+                          <span className="whitespace-nowrap">{subItem.label}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          // Item regular sin subitems
+          const isActive = item.path ? location.pathname === item.path : false
           
           return (
             <Link
               key={item.id}
-              to={item.path}
+              to={item.path || '/dashboard'}
               className={cn(
-                'flex items-center px-3 py-3 rounded-lg transition-all duration-200 group min-w-[40px]',
+                'flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group min-w-[40px]',
                 isActive 
                   ? 'bg-white text-blue-600 shadow-lg' 
                   : 'text-blue-100 hover:bg-blue-700 hover:text-white',
                 !isExpanded && 'justify-center'
               )}
             >
-              <Icon size={20} className="flex-shrink-0" />
+              <Icon size={18} className="flex-shrink-0" />
               <span className={cn(
-                'ml-3 font-medium transition-all duration-300 whitespace-nowrap',
+                'ml-3 font-medium text-sm transition-all duration-300 whitespace-nowrap',
                 isExpanded 
                   ? 'opacity-100 translate-x-0' 
                   : 'opacity-0 -translate-x-2 w-0 overflow-hidden'
               )}>
                 {item.label}
+                {item.badge && (
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-blue-500 text-white rounded-full">
+                    {item.badge}
+                  </span>
+                )}
               </span>
             </Link>
           )

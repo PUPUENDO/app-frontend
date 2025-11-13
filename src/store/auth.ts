@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { User as FirebaseUser } from 'firebase/auth';
 
 export interface User {
@@ -27,26 +28,37 @@ interface AuthState {
   hasRole: (role: 'student' | 'admin') => boolean;
 }
 
-export const useAuthStore = create<AuthState>()((set, get) => ({
-  user: null,
-  firebaseUser: null,
-  isLoading: false,
-  error: null,
-
-  setUser: (user: User | null) => set({ user, error: null }),
-  setFirebaseUser: (firebaseUser: FirebaseUser | null) => set({ firebaseUser }),
-  setLoading: (loading: boolean) => set({ isLoading: loading }),
-  setError: (error: string | null) => set({ error }),
-  reset: () =>
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
       user: null,
       firebaseUser: null,
       isLoading: false,
       error: null,
+
+      setUser: (user: User | null) => set({ user, error: null }),
+      setFirebaseUser: (firebaseUser: FirebaseUser | null) => set({ firebaseUser }),
+      setLoading: (loading: boolean) => set({ isLoading: loading }),
+      setError: (error: string | null) => set({ error }),
+      reset: () =>
+        set({
+          user: null,
+          firebaseUser: null,
+          isLoading: false,
+          error: null,
+        }),
+      isAuthenticated: () => !!get().user && !!get().firebaseUser,
+      hasRole: (role: 'student' | 'admin') => {
+        const { user } = get();
+        return user?.role === role;
+      },
     }),
-  isAuthenticated: () => !!get().user && !!get().firebaseUser,
-  hasRole: (role: 'student' | 'admin') => {
-    const { user } = get();
-    return user?.role === role;
-  },
-}));
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        // No persistir firebaseUser porque no es serializable
+      }),
+    }
+  )
+);

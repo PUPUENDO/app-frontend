@@ -20,4 +20,6 @@ export interface Topic {
   order: number;
   createdAt: Date;
   updatedAt: Date;
+  totalSubtopics?: number;
+  totalLessons?: number;
 }

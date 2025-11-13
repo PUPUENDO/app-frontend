@@ -11,17 +11,18 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard.users'
-import { Route as DashboardLearnRouteImport } from './routes/dashboard.learn'
+import { Route as DashboardTopicsRouteImport } from './routes/dashboard.topics'
+import { Route as DashboardSubtopicsRouteImport } from './routes/dashboard.subtopics'
+import { Route as DashboardLessonsRouteImport } from './routes/dashboard.lessons'
 import { Route as DashboardCoursesRouteImport } from './routes/dashboard.courses'
 import { Route as DashboardAchievementsRouteImport } from './routes/dashboard.achievements'
 import { Route as DashboardTopicsCourseIdRouteImport } from './routes/dashboard.topics.$courseId'
 import { Route as DashboardSubtopicsTopicIdRouteImport } from './routes/dashboard.subtopics.$topicId'
 import { Route as DashboardLessonsSubtopicIdRouteImport } from './routes/dashboard.lessons.$subtopicId'
-import { Route as DashboardLessonLessonIdExerciseRouteImport } from './routes/dashboard.lesson.$lessonId.exercise'
 
 const LoginLazyRouteImport = createFileRoute('/login')()
 const Error500LazyRouteImport = createFileRoute('/error-500')()
@@ -54,11 +55,6 @@ const Error401LazyRoute = Error401LazyRouteImport.update({
   path: '/error-401',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/error-401.lazy').then((d) => d.Route))
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -69,14 +65,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardUsersRoute = DashboardUsersRouteImport.update({
   id: '/users',
   path: '/users',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardLearnRoute = DashboardLearnRouteImport.update({
-  id: '/learn',
-  path: '/learn',
+const DashboardTopicsRoute = DashboardTopicsRouteImport.update({
+  id: '/topics',
+  path: '/topics',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSubtopicsRoute = DashboardSubtopicsRouteImport.update({
+  id: '/subtopics',
+  path: '/subtopics',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardLessonsRoute = DashboardLessonsRouteImport.update({
+  id: '/lessons',
+  path: '/lessons',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardCoursesRoute = DashboardCoursesRouteImport.update({
@@ -90,33 +101,26 @@ const DashboardAchievementsRoute = DashboardAchievementsRouteImport.update({
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardTopicsCourseIdRoute = DashboardTopicsCourseIdRouteImport.update({
-  id: '/topics/$courseId',
-  path: '/topics/$courseId',
-  getParentRoute: () => DashboardRoute,
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => DashboardTopicsRoute,
 } as any)
 const DashboardSubtopicsTopicIdRoute =
   DashboardSubtopicsTopicIdRouteImport.update({
-    id: '/subtopics/$topicId',
-    path: '/subtopics/$topicId',
-    getParentRoute: () => DashboardRoute,
+    id: '/$topicId',
+    path: '/$topicId',
+    getParentRoute: () => DashboardSubtopicsRoute,
   } as any)
 const DashboardLessonsSubtopicIdRoute =
   DashboardLessonsSubtopicIdRouteImport.update({
-    id: '/lessons/$subtopicId',
-    path: '/lessons/$subtopicId',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardLessonLessonIdExerciseRoute =
-  DashboardLessonLessonIdExerciseRouteImport.update({
-    id: '/lesson/$lessonId/exercise',
-    path: '/lesson/$lessonId/exercise',
-    getParentRoute: () => DashboardRoute,
+    id: '/$subtopicId',
+    path: '/$subtopicId',
+    getParentRoute: () => DashboardLessonsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/onboarding': typeof OnboardingRoute
   '/error-401': typeof Error401LazyRoute
   '/error-403': typeof Error403LazyRoute
   '/error-404': typeof Error404LazyRoute
@@ -124,17 +128,17 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginLazyRoute
   '/dashboard/achievements': typeof DashboardAchievementsRoute
   '/dashboard/courses': typeof DashboardCoursesRoute
-  '/dashboard/learn': typeof DashboardLearnRoute
+  '/dashboard/lessons': typeof DashboardLessonsRouteWithChildren
+  '/dashboard/subtopics': typeof DashboardSubtopicsRouteWithChildren
+  '/dashboard/topics': typeof DashboardTopicsRouteWithChildren
   '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/lessons/$subtopicId': typeof DashboardLessonsSubtopicIdRoute
   '/dashboard/subtopics/$topicId': typeof DashboardSubtopicsTopicIdRoute
   '/dashboard/topics/$courseId': typeof DashboardTopicsCourseIdRoute
-  '/dashboard/lesson/$lessonId/exercise': typeof DashboardLessonLessonIdExerciseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
-  '/onboarding': typeof OnboardingRoute
   '/error-401': typeof Error401LazyRoute
   '/error-403': typeof Error403LazyRoute
   '/error-404': typeof Error404LazyRoute
@@ -142,18 +146,19 @@ export interface FileRoutesByTo {
   '/login': typeof LoginLazyRoute
   '/dashboard/achievements': typeof DashboardAchievementsRoute
   '/dashboard/courses': typeof DashboardCoursesRoute
-  '/dashboard/learn': typeof DashboardLearnRoute
+  '/dashboard/lessons': typeof DashboardLessonsRouteWithChildren
+  '/dashboard/subtopics': typeof DashboardSubtopicsRouteWithChildren
+  '/dashboard/topics': typeof DashboardTopicsRouteWithChildren
   '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/dashboard/lessons/$subtopicId': typeof DashboardLessonsSubtopicIdRoute
   '/dashboard/subtopics/$topicId': typeof DashboardSubtopicsTopicIdRoute
   '/dashboard/topics/$courseId': typeof DashboardTopicsCourseIdRoute
-  '/dashboard/lesson/$lessonId/exercise': typeof DashboardLessonLessonIdExerciseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/onboarding': typeof OnboardingRoute
   '/error-401': typeof Error401LazyRoute
   '/error-403': typeof Error403LazyRoute
   '/error-404': typeof Error404LazyRoute
@@ -161,19 +166,20 @@ export interface FileRoutesById {
   '/login': typeof LoginLazyRoute
   '/dashboard/achievements': typeof DashboardAchievementsRoute
   '/dashboard/courses': typeof DashboardCoursesRoute
-  '/dashboard/learn': typeof DashboardLearnRoute
+  '/dashboard/lessons': typeof DashboardLessonsRouteWithChildren
+  '/dashboard/subtopics': typeof DashboardSubtopicsRouteWithChildren
+  '/dashboard/topics': typeof DashboardTopicsRouteWithChildren
   '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/lessons/$subtopicId': typeof DashboardLessonsSubtopicIdRoute
   '/dashboard/subtopics/$topicId': typeof DashboardSubtopicsTopicIdRoute
   '/dashboard/topics/$courseId': typeof DashboardTopicsCourseIdRoute
-  '/dashboard/lesson/$lessonId/exercise': typeof DashboardLessonLessonIdExerciseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/onboarding'
     | '/error-401'
     | '/error-403'
     | '/error-404'
@@ -181,17 +187,17 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/achievements'
     | '/dashboard/courses'
-    | '/dashboard/learn'
+    | '/dashboard/lessons'
+    | '/dashboard/subtopics'
+    | '/dashboard/topics'
     | '/dashboard/users'
+    | '/dashboard/'
     | '/dashboard/lessons/$subtopicId'
     | '/dashboard/subtopics/$topicId'
     | '/dashboard/topics/$courseId'
-    | '/dashboard/lesson/$lessonId/exercise'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
-    | '/onboarding'
     | '/error-401'
     | '/error-403'
     | '/error-404'
@@ -199,17 +205,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/achievements'
     | '/dashboard/courses'
-    | '/dashboard/learn'
+    | '/dashboard/lessons'
+    | '/dashboard/subtopics'
+    | '/dashboard/topics'
     | '/dashboard/users'
+    | '/dashboard'
     | '/dashboard/lessons/$subtopicId'
     | '/dashboard/subtopics/$topicId'
     | '/dashboard/topics/$courseId'
-    | '/dashboard/lesson/$lessonId/exercise'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/onboarding'
     | '/error-401'
     | '/error-403'
     | '/error-404'
@@ -217,18 +224,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/achievements'
     | '/dashboard/courses'
-    | '/dashboard/learn'
+    | '/dashboard/lessons'
+    | '/dashboard/subtopics'
+    | '/dashboard/topics'
     | '/dashboard/users'
+    | '/dashboard/'
     | '/dashboard/lessons/$subtopicId'
     | '/dashboard/subtopics/$topicId'
     | '/dashboard/topics/$courseId'
-    | '/dashboard/lesson/$lessonId/exercise'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
-  OnboardingRoute: typeof OnboardingRoute
   Error401LazyRoute: typeof Error401LazyRoute
   Error403LazyRoute: typeof Error403LazyRoute
   Error404LazyRoute: typeof Error404LazyRoute
@@ -273,13 +281,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Error401LazyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -294,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/users': {
       id: '/dashboard/users'
       path: '/users'
@@ -301,11 +309,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUsersRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/learn': {
-      id: '/dashboard/learn'
-      path: '/learn'
-      fullPath: '/dashboard/learn'
-      preLoaderRoute: typeof DashboardLearnRouteImport
+    '/dashboard/topics': {
+      id: '/dashboard/topics'
+      path: '/topics'
+      fullPath: '/dashboard/topics'
+      preLoaderRoute: typeof DashboardTopicsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/subtopics': {
+      id: '/dashboard/subtopics'
+      path: '/subtopics'
+      fullPath: '/dashboard/subtopics'
+      preLoaderRoute: typeof DashboardSubtopicsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/lessons': {
+      id: '/dashboard/lessons'
+      path: '/lessons'
+      fullPath: '/dashboard/lessons'
+      preLoaderRoute: typeof DashboardLessonsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/courses': {
@@ -324,55 +346,80 @@ declare module '@tanstack/react-router' {
     }
     '/dashboard/topics/$courseId': {
       id: '/dashboard/topics/$courseId'
-      path: '/topics/$courseId'
+      path: '/$courseId'
       fullPath: '/dashboard/topics/$courseId'
       preLoaderRoute: typeof DashboardTopicsCourseIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardTopicsRoute
     }
     '/dashboard/subtopics/$topicId': {
       id: '/dashboard/subtopics/$topicId'
-      path: '/subtopics/$topicId'
+      path: '/$topicId'
       fullPath: '/dashboard/subtopics/$topicId'
       preLoaderRoute: typeof DashboardSubtopicsTopicIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardSubtopicsRoute
     }
     '/dashboard/lessons/$subtopicId': {
       id: '/dashboard/lessons/$subtopicId'
-      path: '/lessons/$subtopicId'
+      path: '/$subtopicId'
       fullPath: '/dashboard/lessons/$subtopicId'
       preLoaderRoute: typeof DashboardLessonsSubtopicIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/lesson/$lessonId/exercise': {
-      id: '/dashboard/lesson/$lessonId/exercise'
-      path: '/lesson/$lessonId/exercise'
-      fullPath: '/dashboard/lesson/$lessonId/exercise'
-      preLoaderRoute: typeof DashboardLessonLessonIdExerciseRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardLessonsRoute
     }
   }
 }
 
+interface DashboardLessonsRouteChildren {
+  DashboardLessonsSubtopicIdRoute: typeof DashboardLessonsSubtopicIdRoute
+}
+
+const DashboardLessonsRouteChildren: DashboardLessonsRouteChildren = {
+  DashboardLessonsSubtopicIdRoute: DashboardLessonsSubtopicIdRoute,
+}
+
+const DashboardLessonsRouteWithChildren =
+  DashboardLessonsRoute._addFileChildren(DashboardLessonsRouteChildren)
+
+interface DashboardSubtopicsRouteChildren {
+  DashboardSubtopicsTopicIdRoute: typeof DashboardSubtopicsTopicIdRoute
+}
+
+const DashboardSubtopicsRouteChildren: DashboardSubtopicsRouteChildren = {
+  DashboardSubtopicsTopicIdRoute: DashboardSubtopicsTopicIdRoute,
+}
+
+const DashboardSubtopicsRouteWithChildren =
+  DashboardSubtopicsRoute._addFileChildren(DashboardSubtopicsRouteChildren)
+
+interface DashboardTopicsRouteChildren {
+  DashboardTopicsCourseIdRoute: typeof DashboardTopicsCourseIdRoute
+}
+
+const DashboardTopicsRouteChildren: DashboardTopicsRouteChildren = {
+  DashboardTopicsCourseIdRoute: DashboardTopicsCourseIdRoute,
+}
+
+const DashboardTopicsRouteWithChildren = DashboardTopicsRoute._addFileChildren(
+  DashboardTopicsRouteChildren,
+)
+
 interface DashboardRouteChildren {
   DashboardAchievementsRoute: typeof DashboardAchievementsRoute
   DashboardCoursesRoute: typeof DashboardCoursesRoute
-  DashboardLearnRoute: typeof DashboardLearnRoute
+  DashboardLessonsRoute: typeof DashboardLessonsRouteWithChildren
+  DashboardSubtopicsRoute: typeof DashboardSubtopicsRouteWithChildren
+  DashboardTopicsRoute: typeof DashboardTopicsRouteWithChildren
   DashboardUsersRoute: typeof DashboardUsersRoute
-  DashboardLessonsSubtopicIdRoute: typeof DashboardLessonsSubtopicIdRoute
-  DashboardSubtopicsTopicIdRoute: typeof DashboardSubtopicsTopicIdRoute
-  DashboardTopicsCourseIdRoute: typeof DashboardTopicsCourseIdRoute
-  DashboardLessonLessonIdExerciseRoute: typeof DashboardLessonLessonIdExerciseRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAchievementsRoute: DashboardAchievementsRoute,
   DashboardCoursesRoute: DashboardCoursesRoute,
-  DashboardLearnRoute: DashboardLearnRoute,
+  DashboardLessonsRoute: DashboardLessonsRouteWithChildren,
+  DashboardSubtopicsRoute: DashboardSubtopicsRouteWithChildren,
+  DashboardTopicsRoute: DashboardTopicsRouteWithChildren,
   DashboardUsersRoute: DashboardUsersRoute,
-  DashboardLessonsSubtopicIdRoute: DashboardLessonsSubtopicIdRoute,
-  DashboardSubtopicsTopicIdRoute: DashboardSubtopicsTopicIdRoute,
-  DashboardTopicsCourseIdRoute: DashboardTopicsCourseIdRoute,
-  DashboardLessonLessonIdExerciseRoute: DashboardLessonLessonIdExerciseRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
@@ -382,7 +429,6 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
-  OnboardingRoute: OnboardingRoute,
   Error401LazyRoute: Error401LazyRoute,
   Error403LazyRoute: Error403LazyRoute,
   Error404LazyRoute: Error404LazyRoute,

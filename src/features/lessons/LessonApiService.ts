@@ -5,15 +5,16 @@ import type { Lesson, CreateLessonForm, UpdateLessonForm } from './types';
 const adaptLessonFromBackend = (backendLesson: any): Lesson => {
   console.log('🔄 Adaptando lesson del backend:', backendLesson);
   
+  // El backend no guarda el campo 'order', usar un valor por defecto
   const adapted: Lesson = {
     id: backendLesson.id,
     topicId: backendLesson.topicId,
     subtopicId: backendLesson.subtopicId,
     title: backendLesson.title,
     content: backendLesson.content,
-    order: backendLesson.order || 0,
-    createdAt: new Date(backendLesson.createdAt),
-    updatedAt: new Date(backendLesson.createdAt),
+    order: 0, // El backend no maneja order todavía
+    createdAt: backendLesson.createdAt ? new Date(backendLesson.createdAt) : new Date(),
+    updatedAt: backendLesson.createdAt ? new Date(backendLesson.createdAt) : new Date(),
   };
 
   console.log('✅ Lesson adaptado:', adapted);
@@ -27,7 +28,7 @@ const adaptLessonToBackend = (lesson: CreateLessonForm | UpdateLessonForm) => {
     subtopicId: (lesson as CreateLessonForm).subtopicId,
     title: lesson.title,
     content: lesson.content,
-    order: lesson.order,
+    // El backend no maneja 'order' todavía, no enviarlo
   };
 };
 

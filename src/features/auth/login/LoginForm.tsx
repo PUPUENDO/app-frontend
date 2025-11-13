@@ -35,25 +35,14 @@ const LoginForm: React.FC = () => {
   const onSubmitEmailPassword = async (data: LoginForm) => {
     try {
       setLoading(true)
-      const result = await authService.loginWithEmailAndPassword(data.email, data.password)
+      await authService.loginWithEmailAndPassword(data.email, data.password)
       
-      toast.success('¡Bienvenido!', {
+      toast.success('¡Bienvenido al Panel Administrativo!', {
         description: 'Has iniciado sesión correctamente',
       })
       
-      // Si necesita onboarding, redirigir a selección de curso
-      if (result.needsOnboarding) {
-        navigate({ to: '/onboarding' })
-        return
-      }
-      
-      // Redirigir según el rol
-      const user = authService.getCurrentUser()
-      if (user?.role === 'admin') {
-        navigate({ to: '/dashboard/courses' })
-      } else {
-        navigate({ to: '/dashboard/learn' })
-      }
+      // Redirigir siempre al dashboard administrativo
+      navigate({ to: '/dashboard' })
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error('Error al iniciar sesión', {
@@ -68,25 +57,14 @@ const LoginForm: React.FC = () => {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true)
-      const result = await authService.loginWithGoogle()
+      await authService.loginWithGoogle()
       
-      toast.success('¡Bienvenido!', {
+      toast.success('¡Bienvenido al Panel Administrativo!', {
         description: 'Has iniciado sesión correctamente',
       })
       
-      // Si necesita onboarding, redirigir a selección de curso
-      if (result.needsOnboarding) {
-        navigate({ to: '/onboarding' })
-        return
-      }
-      
-      // Redirigir según el rol
-      const user = authService.getCurrentUser()
-      if (user?.role === 'admin') {
-        navigate({ to: '/dashboard/courses' })
-      } else {
-        navigate({ to: '/dashboard/learn' })
-      }
+      // Redirigir siempre al dashboard administrativo
+      navigate({ to: '/dashboard' })
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error('Error al iniciar sesión', {
@@ -101,10 +79,10 @@ const LoginForm: React.FC = () => {
     <Card className="w-full shadow-xl">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
-          Iniciar Sesión
+          Acceso Administrativo
         </CardTitle>
         <CardDescription className="text-center">
-          Ingresa con tu cuenta o usa Google
+          Ingresa con tus credenciales de administrador
         </CardDescription>
       </CardHeader>
       <CardContent>

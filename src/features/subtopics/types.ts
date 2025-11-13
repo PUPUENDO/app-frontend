@@ -20,4 +20,5 @@ export interface Subtopic {
   order: number;
   createdAt: Date;
   updatedAt: Date;
+  totalLessons?: number;
 }

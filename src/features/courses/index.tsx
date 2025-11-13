@@ -8,11 +8,15 @@ import { CourseApiService } from './CourseApiService'
 import { CreateCourseModal, EditCourseModal, DeleteCourseModal } from './components'
 import type { Course } from './types'
 import { usePermissions } from '@/hooks/use-permissions'
+import { useNavigate } from '@tanstack/react-router'
+import { TopicApiService } from '@/features/topics/TopicApiService'
+import { LessonApiService } from '@/features/lessons/LessonApiService'
 
 const CoursesPage: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const { isAdmin } = usePermissions()
 
@@ -38,9 +42,39 @@ const CoursesPage: React.FC = () => {
       console.log('✅ Cursos recibidos en el componente:', data)
       console.log(`✅ Total de cursos: ${data?.length || 0}`)
       
-      setCourses(data || [])
-      
-      if (!data || data.length === 0) {
+      // Calcular totales para cada curso
+      if (data && data.length > 0) {
+        const coursesWithTotals = await Promise.all(
+          data.map(async (course) => {
+            try {
+              // Obtener temas del curso
+              const topics = await TopicApiService.findByCourseId(course.id)
+              const totalTopics = topics?.length || 0
+              
+              // Obtener lecciones del curso (por topicId)
+              let totalLessons = 0
+              if (topics && topics.length > 0) {
+                const lessonsPromises = topics.map(topic => 
+                  LessonApiService.findByTopicId(topic.id).catch(() => [])
+                )
+                const lessonsArrays = await Promise.all(lessonsPromises)
+                totalLessons = lessonsArrays.reduce((sum, lessons) => sum + (lessons?.length || 0), 0)
+              }
+              
+              return {
+                ...course,
+                totalTopics,
+                totalLessons
+              }
+            } catch (error) {
+              console.error(`Error calculando totales para curso ${course.id}:`, error)
+              return course
+            }
+          })
+        )
+        setCourses(coursesWithTotals)
+      } else {
+        setCourses(data || [])
         console.warn('⚠️ No se recibieron cursos del servidor')
       }
     } catch (error: any) {
@@ -59,22 +93,23 @@ const CoursesPage: React.FC = () => {
 
   const handleCourseCreated = (newCourse: Course) => {
     console.log('✅ Nuevo curso creado:', newCourse)
-    setCourses(prev => [...prev, newCourse])
     toast.success('Curso creado exitosamente')
+    // Refetch para recalcular totales
+    fetchCourses()
   }
 
   const handleCourseUpdated = (updatedCourse: Course) => {
     console.log('✅ Curso actualizado:', updatedCourse)
-    setCourses(prev => 
-      prev.map(course => course.id === updatedCourse.id ? updatedCourse : course)
-    )
     toast.success('Curso actualizado exitosamente')
+    // Refetch para recalcular totales
+    fetchCourses()
   }
 
   const handleCourseDeleted = (courseId: string) => {
     console.log('✅ Curso eliminado:', courseId)
-    setCourses(prev => prev.filter(course => course.id !== courseId))
     toast.success('Curso eliminado exitosamente')
+    // Refetch para recalcular totales
+    fetchCourses()
   }
 
   const openEditModal = (course: Course) => {
@@ -236,29 +271,42 @@ const CoursesPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
-                    {course.createdAt ? new Date(course.createdAt).toLocaleDateString('es-ES', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    }) : 'N/A'}
-                  </span>
-                  {isAdmin() && (
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => openEditModal(course)}>
-                        <Edit3 size={14} />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-red-600 hover:text-red-700"
-                        onClick={() => openDeleteModal(course)}
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
-                  )}
+                <div className="space-y-3">
+                  {/* View Topics Button */}
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    size="sm"
+                    onClick={() => navigate({ to: `/dashboard/topics/${course.id}` })}
+                  >
+                    <BookOpen size={14} className="mr-2" />
+                    Ver Temas ({course.totalTopics || 0})
+                  </Button>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">
+                      {course.createdAt ? new Date(course.createdAt).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      }) : 'N/A'}
+                    </span>
+                    {isAdmin() && (
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => openEditModal(course)}>
+                          <Edit3 size={14} />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => openDeleteModal(course)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -1,5 +1,4 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { useAuthStore } from '@/store/auth'
 import { authService } from '@/features/auth/AuthService'
 import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
@@ -18,8 +17,6 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function DashboardLayout() {
-  const { isAuthenticated } = useAuthStore()
-
   useEffect(() => {
     // Verificación periódica de autenticación
     const interval = setInterval(async () => {
@@ -32,17 +29,6 @@ function DashboardLayout() {
 
     return () => clearInterval(interval)
   }, [])
-
-  if (!isAuthenticated()) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verificando autenticación...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="flex h-screen bg-gray-100">

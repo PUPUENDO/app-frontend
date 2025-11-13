@@ -9,11 +9,6 @@ import { auth } from '@/lib/firebase';
 import api from '@/lib/api';
 import { useAuthStore, User } from '@/store/auth';
 
-interface LoginResult {
-  needsOnboarding: boolean;
-  isNewUser: boolean;
-}
-
 class AuthService {
   private googleProvider = new GoogleAuthProvider();
 
@@ -21,11 +16,11 @@ class AuthService {
    * Método compartido para autenticar con el backend
    * Funciona tanto para Google OAuth como para Email/Password
    */
-  private async authenticateWithBackend(idToken: string): Promise<LoginResult> {
+  private async authenticateWithBackend(idToken: string): Promise<void> {
     // Enviar el token al backend
     const response = await api.post('/auth/google', { idToken });
     
-    const { user: backendUser, isNewUser, needsOnboarding } = response.data.data;
+    const { user: backendUser } = response.data.data;
 
     // Guardar el usuario en el estado
     const user: User = {
@@ -38,14 +33,12 @@ class AuthService {
     };
 
     useAuthStore.getState().setUser(user);
-
-    return { needsOnboarding, isNewUser };
   }
 
   /**
    * Login con Email y Password
    */
-  async loginWithEmailAndPassword(email: string, password: string): Promise<LoginResult> {
+  async loginWithEmailAndPassword(email: string, password: string): Promise<void> {
     try {
       useAuthStore.getState().setLoading(true);
       useAuthStore.getState().setError(null);
@@ -59,8 +52,8 @@ class AuthService {
       // 3. Establecer el usuario de Firebase
       useAuthStore.getState().setFirebaseUser(userCredential.user);
 
-      // 4. Autenticar con el backend (mismo flujo que Google)
-      return await this.authenticateWithBackend(idToken);
+      // 4. Autenticar con el backend
+      await this.authenticateWithBackend(idToken);
 
     } catch (error: any) {
       console.error('Login error:', error);
@@ -75,7 +68,7 @@ class AuthService {
   /**
    * Login con Google OAuth
    */
-  async loginWithGoogle(): Promise<LoginResult> {
+  async loginWithGoogle(): Promise<void> {
     try {
       useAuthStore.getState().setLoading(true);
       useAuthStore.getState().setError(null);
@@ -89,8 +82,8 @@ class AuthService {
       // 3. Establecer el usuario de Firebase
       useAuthStore.getState().setFirebaseUser(result.user);
 
-      // 4. Autenticar con el backend (mismo flujo que Email/Password)
-      return await this.authenticateWithBackend(idToken);
+      // 4. Autenticar con el backend
+      await this.authenticateWithBackend(idToken);
 
     } catch (error: any) {
       console.error('Login error:', error);
@@ -99,44 +92,6 @@ class AuthService {
       throw new Error(errorMessage);
     } finally {
       useAuthStore.getState().setLoading(false);
-    }
-  }
-
-  /**
-   * Completar onboarding (seleccionar curso inicial)
-   */
-  async completeOnboarding(courseId: string): Promise<void> {
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error('No hay usuario autenticado');
-      }
-
-      const idToken = await currentUser.getIdToken();
-      const userName = currentUser.displayName || 'Usuario';
-
-      await api.post('/auth/complete-onboarding', {
-        userId: currentUser.uid,
-        name: userName,
-        selectedCourseIds: [courseId], // Backend espera un array
-      }, {
-        headers: {
-          'Authorization': `Bearer ${idToken}`
-        }
-      });
-
-      // Actualizar el usuario en el estado
-      const user = useAuthStore.getState().user;
-      if (user) {
-        useAuthStore.getState().setUser({
-          ...user,
-          currentCourseId: courseId,
-        });
-      }
-
-    } catch (error: any) {
-      console.error('Onboarding error:', error);
-      throw new Error(error.response?.data?.message || 'Error completando onboarding');
     }
   }
 

@@ -6,14 +6,11 @@ export const Route = createFileRoute('/')({
 })
 
 function IndexPage() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
 
-  // Si está autenticado, redirigir según el rol
+  // Si está autenticado, redirigir al dashboard administrativo
   if (isAuthenticated()) {
-    if (user?.role === 'admin') {
-      return <Navigate to="/dashboard/courses" />
-    }
-    return <Navigate to="/dashboard/learn" />
+    return <Navigate to="/dashboard" />
   }
 
   // Si no está autenticado, ir al login
