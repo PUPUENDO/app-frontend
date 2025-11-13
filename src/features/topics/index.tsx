@@ -68,7 +68,7 @@ const TopicsPage: React.FC = () => {
       {/* Course Header */}
       {course && (
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{course.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{course.title}</h1>
           <p className="text-gray-600">{course.description}</p>
         </div>
       )}
@@ -123,7 +123,7 @@ const TopicsPage: React.FC = () => {
                           )}
                         </div>
                         <div>
-                          <CardTitle className="text-xl">{topic.name}</CardTitle>
+                          <CardTitle className="text-xl">{topic.title}</CardTitle>
                           <Badge variant={isCompleted ? 'success' : isLocked ? 'outline' : 'default'}>
                             {isCompleted ? 'Completado' : isLocked ? 'Bloqueado' : 'Disponible'}
                           </Badge>

@@ -97,11 +97,11 @@ const CoursesPage: React.FC = () => {
   // Filtrar cursos con validación de datos
   const filteredCourses = courses.filter(course => {
     if (!course) return false
-    const courseName = course.name || ''
+    const courseTitle = course.title || ''
     const courseDescription = course.description || ''
     const search = searchTerm || ''
     
-    return courseName.toLowerCase().includes(search.toLowerCase()) ||
+    return courseTitle.toLowerCase().includes(search.toLowerCase()) ||
            courseDescription.toLowerCase().includes(search.toLowerCase())
   })
 
@@ -198,24 +198,13 @@ const CoursesPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (
             <Card key={course.id} className="hover:shadow-lg transition-shadow">
-              {course.imageUrl && (
-                <div className="h-48 overflow-hidden rounded-t-lg">
-                  <img 
-                    src={course.imageUrl} 
-                    alt={course.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              {!course.imageUrl && (
-                <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center rounded-t-lg">
-                  <BookOpen className="w-20 h-20 text-white opacity-80" />
-                </div>
-              )}
+              <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center rounded-t-lg">
+                <BookOpen className="w-20 h-20 text-white opacity-80" />
+              </div>
               
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-xl">{course.name}</CardTitle>
+                  <CardTitle className="text-xl">{course.title}</CardTitle>
                   <Badge variant="secondary">Activo</Badge>
                 </div>
                 <CardDescription className="line-clamp-2">
