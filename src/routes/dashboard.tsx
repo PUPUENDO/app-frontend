@@ -1,15 +1,26 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { authService } from '@/features/auth/AuthService'
+import { useAuthStore } from '@/store/auth'
 import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
+    // Verificar que el usuario esté autenticado
     const isAuthenticated = await authService.checkAuthStatus()
-    
+
     if (!isAuthenticated) {
       throw redirect({
         to: '/login',
+      })
+    }
+
+    // Verificar que el usuario tenga rol de admin
+    const user = useAuthStore.getState().user
+    if (!user || user.role !== 'admin') {
+      console.warn('⛔ Acceso denegado: El usuario no tiene rol de administrador')
+      throw redirect({
+        to: '/error-403',
       })
     }
   },
