@@ -52,30 +52,48 @@ export interface UpdateLessonRequest {
 export const exerciseConfigSchema = z.object({
   instructions: z
     .string()
-    .min(1, 'Las instrucciones del ejercicio son requeridas'),
+    .min(1, 'Las instrucciones del ejercicio son requeridas')
+    .refine((val) => val.trim().length > 0, {
+      message: 'Las instrucciones del ejercicio son requeridas'
+    }),
   type: z.enum(EXERCISE_TYPES, {
-    errorMap: () => ({ message: 'Tipo de ejercicio inválido' })
+    errorMap: () => ({ 
+      message: 'Tipo de ejercicio inválido. Debe ser: fill_blank, multiple_choice, code_completion, true_false, open_ended' 
+    })
   }),
   maxPoints: z
     .number()
     .min(1, 'Los puntos máximos deben ser mayores a 0')
-    .max(100, 'Los puntos máximos no pueden exceder 100'),
+    .max(50, 'Los puntos máximos del ejercicio deben estar entre 0 y 50')
+    .default(50),
 });
 
 export const createLessonSchema = z.object({
   topicId: z
     .string()
-    .min(1, 'ID de tema es requerido'),
+    .min(1, 'ID de tema es requerido')
+    .refine((val) => val.trim().length > 0, {
+      message: 'ID de tema es requerido'
+    }),
   subtopicId: z
     .string()
-    .min(1, 'ID de subtema es requerido'),
+    .min(1, 'ID de subtema es requerido')
+    .refine((val) => val.trim().length > 0, {
+      message: 'ID de subtema es requerido'
+    }),
   title: z
     .string()
     .min(1, 'Título es requerido')
-    .max(200, 'El título no puede exceder 200 caracteres'),
+    .max(200, 'El título no puede exceder 200 caracteres')
+    .refine((val) => val.trim().length > 0, {
+      message: 'Título es requerido'
+    }),
   content: z
     .string()
-    .min(1, 'Contenido es requerido'),
+    .min(1, 'Contenido es requerido')
+    .refine((val) => val.trim().length > 0, {
+      message: 'Contenido es requerido'
+    }),
   exerciseConfig: exerciseConfigSchema.optional(),
   description: z
     .string()
@@ -88,10 +106,16 @@ export const updateLessonSchema = z.object({
     .string()
     .min(1, 'El título no puede estar vacío')
     .max(200, 'El título no puede exceder 200 caracteres')
+    .refine((val) => val.trim().length > 0, {
+      message: 'El título no puede estar vacío'
+    })
     .optional(),
   content: z
     .string()
     .min(1, 'El contenido no puede estar vacío')
+    .refine((val) => val.trim().length > 0, {
+      message: 'El contenido no puede estar vacío'
+    })
     .optional(),
   exerciseConfig: exerciseConfigSchema.optional(),
   description: z

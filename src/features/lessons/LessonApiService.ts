@@ -13,7 +13,10 @@ export const LessonApiService = {
    */
   findAll: async (): Promise<Lesson[]> => {
     const response = await api.get<Lesson[]>('/lessons');
-    return response.data;
+    return response.data.map(lesson => ({
+      ...lesson,
+      createdAt: new Date(lesson.createdAt),
+    }));
   },
 
   /**
@@ -21,7 +24,10 @@ export const LessonApiService = {
    */
   findById: async (id: string): Promise<Lesson> => {
     const response = await api.get<Lesson>(`/lessons/${id}`);
-    return response.data;
+    return {
+      ...response.data,
+      createdAt: new Date(response.data.createdAt),
+    };
   },
 
   /**
@@ -29,7 +35,10 @@ export const LessonApiService = {
    */
   findByTopicId: async (topicId: string): Promise<Lesson[]> => {
     const response = await api.get<Lesson[]>(`/topics/${topicId}/lessons`);
-    return response.data;
+    return response.data.map(lesson => ({
+      ...lesson,
+      createdAt: new Date(lesson.createdAt),
+    }));
   },
 
   /**
@@ -37,7 +46,10 @@ export const LessonApiService = {
    */
   findBySubtopicId: async (topicId: string, subtopicId: string): Promise<Lesson[]> => {
     const response = await api.get<Lesson[]>(`/topics/${topicId}/subtopics/${subtopicId}/lessons`);
-    return response.data;
+    return response.data.map(lesson => ({
+      ...lesson,
+      createdAt: new Date(lesson.createdAt),
+    }));
   },
 
   /**
@@ -49,12 +61,15 @@ export const LessonApiService = {
       subtopicId: data.subtopicId,
       title: data.title,
       content: data.content,
-      exerciseConfig: data.exerciseConfig,
-      description: data.description,
+      ...(data.exerciseConfig && { exerciseConfig: data.exerciseConfig }),
+      ...(data.description && { description: data.description }),
     };
 
     const response = await api.post<Lesson>('/lessons', request);
-    return response.data;
+    return {
+      ...response.data,
+      createdAt: new Date(response.data.createdAt),
+    };
   },
 
   /**
@@ -62,14 +77,17 @@ export const LessonApiService = {
    */
   update: async (id: string, data: UpdateLessonForm): Promise<Lesson> => {
     const request: UpdateLessonRequest = {
-      title: data.title,
-      content: data.content,
-      exerciseConfig: data.exerciseConfig,
-      description: data.description,
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.content !== undefined && { content: data.content }),
+      ...(data.exerciseConfig !== undefined && { exerciseConfig: data.exerciseConfig }),
+      ...(data.description !== undefined && { description: data.description }),
     };
 
     const response = await api.put<Lesson>(`/lessons/${id}`, request);
-    return response.data;
+    return {
+      ...response.data,
+      createdAt: new Date(response.data.createdAt),
+    };
   },
 
   /**
