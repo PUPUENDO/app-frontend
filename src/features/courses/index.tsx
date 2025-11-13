@@ -100,7 +100,7 @@ const CoursesPage: React.FC = () => {
     const courseTitle = course.title || ''
     const courseDescription = course.description || ''
     const search = searchTerm || ''
-    
+
     return courseTitle.toLowerCase().includes(search.toLowerCase()) ||
            courseDescription.toLowerCase().includes(search.toLowerCase())
   })

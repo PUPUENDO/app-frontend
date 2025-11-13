@@ -59,23 +59,23 @@ export const CreateCourseModal: React.FC<CreateCourseModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title="Crear Nuevo Curso">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-gray-700">
-            Nombre del Curso *
+          <label htmlFor="title" className="text-sm font-medium text-gray-700">
+            Título del Curso *
           </label>
           <Input
-            id="name"
+            id="title"
             placeholder="Ej: Programación en Python"
-            {...register('name')}
+            {...register('title')}
             disabled={loading}
           />
-          {errors.name && (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
+          {errors.title && (
+            <p className="text-sm text-red-600">{errors.title.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <label htmlFor="description" className="text-sm font-medium text-gray-700">
-            Descripción *
+            Descripción (Opcional)
           </label>
           <Textarea
             id="description"
@@ -86,22 +86,6 @@ export const CreateCourseModal: React.FC<CreateCourseModalProps> = ({
           />
           {errors.description && (
             <p className="text-sm text-red-600">{errors.description.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="imageUrl" className="text-sm font-medium text-gray-700">
-            URL de Imagen (Opcional)
-          </label>
-          <Input
-            id="imageUrl"
-            type="url"
-            placeholder="https://ejemplo.com/imagen.jpg"
-            {...register('imageUrl')}
-            disabled={loading}
-          />
-          {errors.imageUrl && (
-            <p className="text-sm text-red-600">{errors.imageUrl.message}</p>
           )}
         </div>
 

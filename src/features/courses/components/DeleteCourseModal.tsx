@@ -55,8 +55,8 @@ export const DeleteCourseModal: React.FC<DeleteCourseModalProps> = ({
 
         {course && (
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium text-gray-900">{course.name}</p>
-            <p className="text-sm text-gray-600 mt-1">{course.description}</p>
+            <p className="text-sm font-medium text-gray-900">{course.title}</p>
+            <p className="text-sm text-gray-600 mt-1">{course.description || 'Sin descripción'}</p>
           </div>
         )}
 

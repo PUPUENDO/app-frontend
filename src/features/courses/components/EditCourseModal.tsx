@@ -37,9 +37,8 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
   useEffect(() => {
     if (course) {
       reset({
-        name: course.name,
+        title: course.title,
         description: course.description,
-        imageUrl: course.imageUrl || '',
       })
     }
   }, [course, reset])
@@ -72,17 +71,17 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title="Editar Curso">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-gray-700">
-            Nombre del Curso
+          <label htmlFor="title" className="text-sm font-medium text-gray-700">
+            Título del Curso
           </label>
           <Input
-            id="name"
+            id="title"
             placeholder="Ej: Programación en Python"
-            {...register('name')}
+            {...register('title')}
             disabled={loading}
           />
-          {errors.name && (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
+          {errors.title && (
+            <p className="text-sm text-red-600">{errors.title.message}</p>
           )}
         </div>
 
@@ -99,22 +98,6 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
           />
           {errors.description && (
             <p className="text-sm text-red-600">{errors.description.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="imageUrl" className="text-sm font-medium text-gray-700">
-            URL de Imagen
-          </label>
-          <Input
-            id="imageUrl"
-            type="url"
-            placeholder="https://ejemplo.com/imagen.jpg"
-            {...register('imageUrl')}
-            disabled={loading}
-          />
-          {errors.imageUrl && (
-            <p className="text-sm text-red-600">{errors.imageUrl.message}</p>
           )}
         </div>
 
