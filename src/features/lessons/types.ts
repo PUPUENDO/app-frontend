@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-// Tipos de ejercicios disponibles
+// Tipos de ejercicios disponibles (DEBEN COINCIDIR CON EL BACKEND)
 export const exerciseTypes = [
-  'true_false',
-  'multiple_choice',
   'fill_blank',
+  'multiple_choice',
   'code_completion',
-  'matching'
+  'true_false',
+  'open_ended'
 ] as const;
 
 export type ExerciseType = typeof exerciseTypes[number];
@@ -55,11 +55,11 @@ export interface Lesson {
   updatedAt: Date;
 }
 
-// Labels para los tipos de ejercicio
+// Labels traducidas para los tipos de ejercicio (para mostrar en la UI)
 export const exerciseTypeLabels: Record<ExerciseType, string> = {
-  true_false: 'Verdadero/Falso',
-  multiple_choice: 'Opción Múltiple',
   fill_blank: 'Llenar Espacios',
+  multiple_choice: 'Opción Múltiple',
   code_completion: 'Completar Código',
-  matching: 'Emparejar'
+  true_false: 'Verdadero/Falso',
+  open_ended: 'Respuesta Abierta'
 };

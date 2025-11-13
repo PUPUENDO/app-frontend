@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// Tipos de ejercicios soportados
-export type ExerciseType = 'fill_blank' | 'multiple_choice' | 'code_completion' | 'true_false' | 'open_ended' | 'matching';
+// Tipos de ejercicios soportados (DEBEN COINCIDIR EXACTAMENTE CON EL BACKEND)
+export type ExerciseType = 'fill_blank' | 'multiple_choice' | 'code_completion' | 'true_false' | 'open_ended';
 
 // Contenido específico por tipo de ejercicio
 export interface FillBlankContent {
@@ -43,21 +43,13 @@ export interface OpenEndedContent {
   sampleAnswer?: string;
 }
 
-export interface MatchingContent {
-  pairs: {
-    left: string;
-    right: string;
-  }[];
-}
-
-// Union type para el contenido del ejercicio
+// Union type para el contenido del ejercicio (debe coincidir con el backend)
 export type ExerciseContent =
   | { type: 'fill_blank'; data: FillBlankContent }
   | { type: 'multiple_choice'; data: MultipleChoiceContent }
   | { type: 'code_completion'; data: CodeCompletionContent }
   | { type: 'true_false'; data: TrueFalseContent }
-  | { type: 'open_ended'; data: OpenEndedContent }
-  | { type: 'matching'; data: MatchingContent };
+  | { type: 'open_ended'; data: OpenEndedContent };
 
 // Ejercicio completo recibido del backend
 export interface Exercise {
@@ -73,8 +65,7 @@ export interface Exercise {
 export type UserAnswer =
   | { [key: number]: string } // fill_blank: { 0: "respuesta1", 1: "respuesta2" }
   | string // multiple_choice: "option-id", true_false: "true"/"false", code_completion: código, open_ended: texto
-  | boolean // true_false: true/false
-  | { [key: number]: string }; // matching: { 0: "match-id", 1: "match-id" }
+  | boolean; // true_false: true/false
 
 // Resultado de validación del backend
 export interface ValidationResult {
