@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
-import { 
+import {
   BookOpen,
   Trophy,
   Users,
@@ -12,13 +12,16 @@ import {
   List,
   Layers,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Moon,
+  Sun
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
 import { authService } from '@/features/auth/AuthService'
 import { useState } from 'react'
+import { useTheme } from '@/contexts/ThemeContext'
 
 interface SubMenuItem {
   id: string
@@ -42,6 +45,7 @@ const Sidebar: React.FC = () => {
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['content'])
   const location = useLocation()
   const { user } = useAuthStore()
+  const { theme, toggleTheme } = useTheme()
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => 
@@ -260,8 +264,33 @@ const Sidebar: React.FC = () => {
         })}
       </nav>
 
-      {/* Logout Button */}
-      <div className="p-4 border-t border-blue-700">
+      {/* Theme Toggle & Logout */}
+      <div className="p-4 border-t border-blue-700 space-y-2">
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className={cn(
+            'flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 text-blue-100 hover:bg-blue-700 hover:text-white',
+            !isExpanded && 'justify-center'
+          )}
+          aria-label="Cambiar tema"
+        >
+          {theme === 'light' ? (
+            <Moon size={20} className="flex-shrink-0" />
+          ) : (
+            <Sun size={20} className="flex-shrink-0" />
+          )}
+          <span className={cn(
+            'ml-3 font-medium transition-all duration-300 whitespace-nowrap',
+            isExpanded
+              ? 'opacity-100 translate-x-0'
+              : 'opacity-0 -translate-x-2 w-0 overflow-hidden'
+          )}>
+            {theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}
+          </span>
+        </button>
+
+        {/* Logout Button */}
         <button
           onClick={handleLogout}
           className={cn(
@@ -272,8 +301,8 @@ const Sidebar: React.FC = () => {
           <LogOut size={20} className="flex-shrink-0" />
           <span className={cn(
             'ml-3 font-medium transition-all duration-300 whitespace-nowrap',
-            isExpanded 
-              ? 'opacity-100 translate-x-0' 
+            isExpanded
+              ? 'opacity-100 translate-x-0'
               : 'opacity-0 -translate-x-2 w-0 overflow-hidden'
           )}>
             Cerrar Sesión

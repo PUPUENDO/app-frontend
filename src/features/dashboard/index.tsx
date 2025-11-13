@@ -159,7 +159,7 @@ const DashboardOverview: React.FC = () => {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando estadísticas...</p>
+          <p className="text-gray-600 dark:text-gray-300">Cargando estadísticas...</p>
         </div>
       </div>
     )
@@ -170,8 +170,8 @@ const DashboardOverview: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Resumen general de la plataforma educativa
           </p>
         </div>
@@ -187,7 +187,7 @@ const DashboardOverview: React.FC = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
           <p className="font-semibold">Error al cargar estadísticas</p>
           <p className="text-sm">{error}</p>
         </div>
@@ -201,15 +201,15 @@ const DashboardOverview: React.FC = () => {
             <Link key={stat.title} to={stat.link}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-transparent hover:border-l-blue-500">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                  <CardTitle className="text-sm font-medium text-gray-600">
+                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
                     {stat.title}
                   </CardTitle>
-                  <div className={`${stat.bgColor} p-2 rounded-lg`}>
-                    <Icon className={`h-5 w-5 ${stat.color}`} />
+                  <div className={`${stat.bgColor} dark:bg-opacity-20 p-2 rounded-lg`}>
+                    <Icon className={`h-5 w-5 ${stat.color} dark:brightness-125`} />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-gray-900">
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                     {stat.value}
                   </div>
                   <div className="flex items-center text-sm mt-2">
@@ -239,17 +239,17 @@ const DashboardOverview: React.FC = () => {
               const Icon = action.icon
               return (
                 <Link key={action.title} to={action.link}>
-                  <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all cursor-pointer group">
+                  <div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:shadow-md transition-all cursor-pointer group">
                     <div className={`${action.color} p-3 rounded-lg group-hover:scale-110 transition-transform`}>
                       <Icon className="h-5 w-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {action.title}
                       </h4>
-                      <p className="text-sm text-gray-500">{action.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>
                     </div>
-                    <ArrowUpRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                    <ArrowUpRight className="h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                   </div>
                 </Link>
               )
