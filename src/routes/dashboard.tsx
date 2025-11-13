@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { authService } from '@/features/auth/AuthService'
-import { useAuthStore } from '@/store/auth'
+import api from '@/lib/api'
 import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 
@@ -15,10 +15,19 @@ export const Route = createFileRoute('/dashboard')({
       })
     }
 
-    // Verificar que el usuario tenga rol de admin
-    const user = useAuthStore.getState().user
-    if (!user || user.role !== 'admin') {
-      console.warn('⛔ Acceso denegado: El usuario no tiene rol de administrador')
+    // Verificar con el backend que el usuario tenga rol de admin
+    try {
+      const response = await api.get('/auth/validate-admin')
+
+      if (!response.data.success || !response.data.data.hasAccess) {
+        console.warn('⛔ Acceso denegado por el backend:', response.data.data.message)
+        throw redirect({
+          to: '/error-403',
+        })
+      }
+    } catch (error: any) {
+      console.error('❌ Error validando acceso administrativo:', error)
+      // Si hay error en la validación, denegar acceso por seguridad
       throw redirect({
         to: '/error-403',
       })
