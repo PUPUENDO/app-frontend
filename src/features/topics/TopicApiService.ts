@@ -3,8 +3,6 @@ import type { Topic, CreateTopicForm, UpdateTopicForm } from './types';
 
 // Adaptador: Backend → Frontend
 const adaptTopicFromBackend = (backendTopic: any): Topic => {
-  console.log('🔄 Adaptando topic del backend:', backendTopic);
-  
   const adapted: Topic = {
     id: backendTopic.id,
     courseId: backendTopic.courseId,
@@ -14,8 +12,6 @@ const adaptTopicFromBackend = (backendTopic: any): Topic => {
     createdAt: new Date(backendTopic.createdAt),
     updatedAt: new Date(backendTopic.createdAt),
   };
-
-  console.log('✅ Topic adaptado:', adapted);
   return adapted;
 };
 
@@ -32,11 +28,8 @@ const adaptTopicToBackend = (topic: CreateTopicForm | UpdateTopicForm) => {
 export const TopicApiService = {
   findAll: async (): Promise<Topic[]> => {
     try {
-      console.log('📡 Obteniendo todos los topics...');
       const response = await api.get('/topics');
-      console.log('📦 Topics recibidos:', response.data);
       
-      // El backend retorna un array directo
       const backendTopics = Array.isArray(response.data) ? response.data : [];
       return backendTopics.map(adaptTopicFromBackend);
     } catch (error) {
@@ -47,11 +40,7 @@ export const TopicApiService = {
 
   findById: async (id: string): Promise<Topic> => {
     try {
-      console.log(`📡 Obteniendo topic ${id}...`);
       const response = await api.get(`/topics/${id}`);
-      console.log('📦 Topic recibido:', response.data);
-      
-      // El backend retorna el objeto directo
       return adaptTopicFromBackend(response.data);
     } catch (error) {
       console.error(`❌ Error obteniendo topic ${id}:`, error);
@@ -61,14 +50,8 @@ export const TopicApiService = {
 
   findByCourseId: async (courseId: string): Promise<Topic[]> => {
     try {
-      console.log(`📡 Obteniendo topics del curso ${courseId}...`);
       const response = await api.get(`/courses/${courseId}/topics`);
-      console.log('📦 Topics del curso recibidos:', response.data);
-      
-      // El backend retorna un array directo
       const backendTopics = Array.isArray(response.data) ? response.data : [];
-      console.log(`✅ Total de topics: ${backendTopics.length}`);
-      
       return backendTopics.map(adaptTopicFromBackend);
     } catch (error) {
       console.error(`❌ Error obteniendo topics del curso ${courseId}:`, error);
@@ -78,12 +61,9 @@ export const TopicApiService = {
 
   create: async (topic: CreateTopicForm): Promise<Topic> => {
     try {
-      console.log('📡 Creando topic:', topic);
       const backendData = adaptTopicToBackend(topic);
-      console.log('📤 Datos enviados al backend:', backendData);
       
       const response = await api.post('/topics', backendData);
-      console.log('📦 Topic creado:', response.data);
       
       return adaptTopicFromBackend(response.data);
     } catch (error) {
@@ -94,12 +74,9 @@ export const TopicApiService = {
 
   update: async (id: string, topic: UpdateTopicForm): Promise<Topic> => {
     try {
-      console.log(`📡 Actualizando topic ${id}:`, topic);
       const backendData = adaptTopicToBackend(topic);
-      console.log('📤 Datos enviados al backend:', backendData);
       
       const response = await api.put(`/topics/${id}`, backendData);
-      console.log('📦 Topic actualizado:', response.data);
       
       return adaptTopicFromBackend(response.data);
     } catch (error) {
@@ -110,9 +87,7 @@ export const TopicApiService = {
 
   delete: async (id: string): Promise<void> => {
     try {
-      console.log(`📡 Eliminando topic ${id}...`);
       await api.delete(`/topics/${id}`);
-      console.log(`✅ Topic ${id} eliminado`);
     } catch (error) {
       console.error(`❌ Error eliminando topic ${id}:`, error);
       throw error;
