@@ -30,6 +30,7 @@ const DashboardOverview: React.FC = () => {
     totalLessons: 0
   })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { isAdmin } = usePermissions()
 
   useEffect(() => {
@@ -39,21 +40,45 @@ const DashboardOverview: React.FC = () => {
   const fetchStats = async () => {
     try {
       setLoading(true)
-      const [courses, users, achievements, lessons] = await Promise.all([
+      setError(null)
+
+      // Usar Promise.allSettled para que un error no afecte las demás llamadas
+      const results = await Promise.allSettled([
         CourseApiService.findAll(),
         isAdmin() ? UserApiService.findAll() : Promise.resolve([]),
         AchievementApiService.findAll(),
         LessonApiService.findAll()
       ])
 
-      setStats({
+      // Extraer los datos exitosos, usar array vacío si falla
+      const courses = results[0].status === 'fulfilled' ? results[0].value : []
+      const users = results[1].status === 'fulfilled' ? results[1].value : []
+      const achievements = results[2].status === 'fulfilled' ? results[2].value : []
+      const lessons = results[3].status === 'fulfilled' ? results[3].value : []
+
+      const newStats = {
         totalCourses: courses.length,
         totalUsers: users.length,
         totalAchievements: achievements.length,
         totalLessons: lessons.length
+      }
+      setStats(newStats)
+
+      // Verificar si hubo errores y mostrar advertencia (sin bloquear la UI)
+      const failedRequests = results.filter(r => r.status === 'rejected')
+      if (failedRequests.length > 0) {
+        console.warn('⚠️ Algunas estadísticas no se pudieron cargar:', failedRequests)
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching stats:', error)
+      setError(error?.message || 'Error al cargar las estadísticas')
+      // Mostrar valores en 0 si hay error
+      setStats({
+        totalCourses: 0,
+        totalUsers: 0,
+        totalAchievements: 0,
+        totalLessons: 0
       })
-    } catch (error) {
-      console.error('Error fetching stats:', error)
     } finally {
       setLoading(false)
     }
@@ -143,12 +168,30 @@ const DashboardOverview: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Resumen general de la plataforma educativa
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-2">
+            Resumen general de la plataforma educativa
+          </p>
+        </div>
+        <button
+          onClick={fetchStats}
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <Activity className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Recargar
+        </button>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <p className="font-semibold">Error al cargar estadísticas</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
