@@ -1,64 +1,61 @@
 import api from '@/lib/api';
-import type { Exercise, Attempt, SubmitAnswerForm } from './types';
+import type { Exercise, ExerciseResponse, ValidationResponse, UserAnswer, ValidationResult } from './types';
 
 export const ExerciseApiService = {
+  /**
+   * Obtener ejercicio generado para una lección
+   * GET /lessons/:lessonId/exercise
+   */
   generateExercise: async (lessonId: string): Promise<Exercise> => {
     try {
-      console.log(`📡 Generando ejercicio para lesson ${lessonId}...`);
-      const response = await api.get(`/lessons/${lessonId}/exercise`);
+      console.log(`📡 Generando ejercicio para lección ${lessonId}...`);
+      const response = await api.get<ExerciseResponse>(`/lessons/${lessonId}/exercise`);
       console.log('📦 Ejercicio generado:', response.data);
       
-      // El backend retorna el objeto directo
-      return response.data;
-    } catch (error) {
-      console.error(`❌ Error generando ejercicio para lesson ${lessonId}:`, error);
-      throw error;
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || 'Error al generar ejercicio');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error(`❌ Error generando ejercicio para lección ${lessonId}:`, error);
+      throw new Error(error.response?.data?.message || 'Error al generar el ejercicio');
     }
   },
 
-  validateAnswer: async (lessonId: string, answer: string): Promise<{ isCorrect: boolean; feedback: string }> => {
+  /**
+   * Validar respuesta de un ejercicio
+   * POST /lessons/:lessonId/exercise/validate
+   * Body: { userAnswer: string | boolean | object }
+   */
+  validateAnswer: async (lessonId: string, userAnswer: UserAnswer): Promise<ValidationResult> => {
     try {
-      console.log(`📡 Validando respuesta para lesson ${lessonId}...`);
-      const response = await api.post(`/lessons/${lessonId}/exercise/validate`, { answer });
+      console.log(`📡 Validando respuesta para lección ${lessonId}`);
+      console.log('📝 Tipo de respuesta:', typeof userAnswer);
+      console.log('📝 Contenido de userAnswer:', JSON.stringify(userAnswer, null, 2));
+      
+      const response = await api.post<ValidationResponse>(`/lessons/${lessonId}/exercise/validate`, { userAnswer });
       console.log('📦 Validación recibida:', response.data);
       
-      // El backend retorna el objeto directo
-      return response.data;
-    } catch (error) {
-      console.error(`❌ Error validando respuesta para lesson ${lessonId}:`, error);
-      throw error;
-    }
-  },
-
-  submitAnswer: async (lessonId: string, data: SubmitAnswerForm): Promise<Attempt> => {
-    try {
-      console.log(`📡 Enviando respuesta para lesson ${lessonId}:`, data);
-      const response = await api.post(`/lessons/${lessonId}/exercise/submit`, data);
-      console.log('📦 Intento creado:', response.data);
-      
-      // El backend retorna el objeto directo
-      return response.data;
-    } catch (error) {
-      console.error(`❌ Error enviando respuesta para lesson ${lessonId}:`, error);
-      throw error;
-    }
-  },
-
-  getAttemptStatus: async (lessonId: string): Promise<Attempt | null> => {
-    try {
-      console.log(`📡 Obteniendo estado del intento para lesson ${lessonId}...`);
-      const response = await api.get(`/lessons/${lessonId}/exercise/attempt-status`);
-      console.log('📦 Estado del intento:', response.data);
-      
-      // El backend retorna el objeto directo
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.log(`ℹ️ No hay intento activo para lesson ${lessonId}`);
-        return null;
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || 'Error al validar respuesta');
       }
-      console.error(`❌ Error obteniendo estado del intento para lesson ${lessonId}:`, error);
-      throw error;
+      
+      // Agregar propiedad isCorrect basada en el status
+      const result = response.data.data;
+      result.isCorrect = result.status !== 'rejected';
+      
+      return result;
+    } catch (error: any) {
+      console.error(`❌ Error validando respuesta para lección ${lessonId}:`, error);
+      console.error('❌ Detalles del error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Error al validar la respuesta';
+      throw new Error(errorMessage);
     }
   },
 };

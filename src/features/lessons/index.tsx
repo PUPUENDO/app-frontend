@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Search, Edit3, Trash2, FileText, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { LessonApiService } from './LessonApiService'
-import { CreateLessonModal, EditLessonModal, DeleteLessonModal } from './components'
+import { CreateLessonModal, EditLessonModal, DeleteLessonModal, ExerciseModal } from './components'
 import type { Lesson } from './types'
 import { usePermissions } from '@/hooks/use-permissions'
 import { CourseApiService } from '@/features/courses/CourseApiService'
@@ -43,6 +43,7 @@ const LessonsPage: React.FC<LessonsPageProps> = ({ subtopicId: propsSubtopicId, 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showExerciseModal, setShowExerciseModal] = useState(false)
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
 
   useEffect(() => {
@@ -265,10 +266,16 @@ const LessonsPage: React.FC<LessonsPageProps> = ({ subtopicId: propsSubtopicId, 
     setShowDeleteModal(true)
   }
 
+  const openExerciseModal = (lesson: Lesson) => {
+    setSelectedLesson(lesson)
+    setShowExerciseModal(true)
+  }
+
   const closeModals = () => {
     setShowCreateModal(false)
     setShowEditModal(false)
     setShowDeleteModal(false)
+    setShowExerciseModal(false)
     setSelectedLesson(null)
   }
 
@@ -602,6 +609,20 @@ const LessonsPage: React.FC<LessonsPageProps> = ({ subtopicId: propsSubtopicId, 
               </CardHeader>
               
               <CardContent>
+                {/* Botón de ejercicio (si tiene exerciseConfig) */}
+                {lesson.exerciseConfig && (
+                  <div className="mb-4">
+                    <Button
+                      onClick={() => openExerciseModal(lesson)}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      size="lg"
+                    >
+                      <FileText className="mr-2 h-5 w-5" />
+                      Realizar Ejercicio ({lesson.exerciseConfig.maxPoints} pts)
+                    </Button>
+                  </div>
+                )}
+
                 {/* Información adicional */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">
@@ -658,6 +679,16 @@ const LessonsPage: React.FC<LessonsPageProps> = ({ subtopicId: propsSubtopicId, 
             lesson={selectedLesson}
           />
         </>
+      )}
+
+      {/* Modal de ejercicio */}
+      {selectedLesson && (
+        <ExerciseModal
+          isOpen={showExerciseModal}
+          onClose={closeModals}
+          lessonId={selectedLesson.id}
+          lessonTitle={selectedLesson.title}
+        />
       )}
     </div>
   )

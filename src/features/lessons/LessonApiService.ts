@@ -13,6 +13,8 @@ const adaptLessonFromBackend = (backendLesson: any): Lesson => {
     title: backendLesson.title,
     content: backendLesson.content,
     order: 0, // El backend no maneja order todavía
+    description: backendLesson.description,
+    exerciseConfig: backendLesson.exerciseConfig,
     createdAt: backendLesson.createdAt ? new Date(backendLesson.createdAt) : new Date(),
     updatedAt: backendLesson.createdAt ? new Date(backendLesson.createdAt) : new Date(),
   };
@@ -21,15 +23,40 @@ const adaptLessonFromBackend = (backendLesson: any): Lesson => {
   return adapted;
 };
 
+// Helper para parsear campos JSON
+const parseJSONField = (value: any) => {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  return value;
+};
+
 // Adaptador: Frontend → Backend
 const adaptLessonToBackend = (lesson: CreateLessonForm | UpdateLessonForm) => {
-  return {
+  const baseData: any = {
     topicId: (lesson as CreateLessonForm).topicId,
     subtopicId: (lesson as CreateLessonForm).subtopicId,
     title: lesson.title,
     content: lesson.content,
+    description: lesson.description,
     // El backend no maneja 'order' todavía, no enviarlo
   };
+
+  // Si hay exerciseConfig, parsear los campos JSON
+  if (lesson.exerciseConfig) {
+    baseData.exerciseConfig = {
+      ...lesson.exerciseConfig,
+      options: parseJSONField(lesson.exerciseConfig.options),
+      blanks: parseJSONField(lesson.exerciseConfig.blanks),
+      pairs: parseJSONField(lesson.exerciseConfig.pairs),
+    };
+  }
+
+  return baseData;
 };
 
 export const LessonApiService = {
