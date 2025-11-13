@@ -18,13 +18,10 @@ export const api = axios.create({
 const waitForAuth = (): Promise<void> => {
   return new Promise((resolve) => {
     if (auth.currentUser) {
-      console.log('✅ Usuario de Firebase ya disponible:', auth.currentUser.email);
       resolve();
     } else {
-      console.log('⏳ Esperando autenticación de Firebase...');
       const unsubscribe = auth.onAuthStateChanged((user) => {
         if (user) {
-          console.log('✅ Usuario de Firebase autenticado:', user.email);
           unsubscribe();
           resolve();
         }
@@ -50,11 +47,6 @@ api.interceptors.request.use(
       if (user) {
         const token = await user.getIdToken();
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('✅ Token agregado a la petición:', {
-          url: config.url,
-          method: config.method?.toUpperCase(),
-          email: user.email
-        });
       } else {
         console.warn('⚠️ No hay usuario autenticado para:', config.url);
       }
@@ -72,12 +64,6 @@ api.interceptors.request.use(
 // Response interceptor para manejar errores y logging
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ Respuesta exitosa:', {
-      url: response.config.url,
-      status: response.status,
-      statusText: response.statusText,
-      dataLength: Array.isArray(response.data) ? response.data.length : 'N/A'
-    });
     return response;
   },
   (error: AxiosError) => {
