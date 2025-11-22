@@ -26,9 +26,9 @@ export const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
 
     try {
       setLoading(true)
-      await UserApiService.delete(user.id)
+      await UserApiService.delete(user.__id)
       toast.success('Usuario eliminado exitosamente')
-      onUserDeleted(user.id)
+      onUserDeleted(user.__id)
       onClose()
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al eliminar el usuario')
@@ -50,7 +50,7 @@ export const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
 
         {user && (
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium text-gray-900">{user.displayName || user.email}</p>
+            <p className="text-sm font-medium text-gray-900">{user.name}</p>
             <p className="text-sm text-gray-600 mt-1">{user.email}</p>
           </div>
         )}

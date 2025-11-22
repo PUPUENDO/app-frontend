@@ -8,10 +8,10 @@ export const createUserSchema = z.object({
 });
 
 export const updateUserSchema = z.object({
-  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').optional(),
-  email: z.string().email('Email inválido').optional(),
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
   currentCourseId: z.string().optional(),
-  profilePicture: z.string().url('URL de imagen inválida').optional(),
+  profilePicture: z.string().url('Debe ser una URL válida').optional().or(z.literal('')),
+  role: z.enum(['student', 'admin']).optional()
 });
 
 export type CreateUserForm = z.infer<typeof createUserSchema>;

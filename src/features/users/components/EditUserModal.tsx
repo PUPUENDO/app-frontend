@@ -29,28 +29,26 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     register,
     handleSubmit,
     formState: { errors },
-    reset,
+    setValue
   } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),
   })
 
   useEffect(() => {
     if (user) {
-      reset({
-        displayName: user.displayName || '',
-        role: user.role,
-        xp: user.xp,
-        level: user.level,
-      })
+      setValue('name', user.name)
+      setValue('role', user.role)
+      setValue('profilePicture', user.profilePicture)
+      setValue('currentCourseId', user.currentCourseId)
     }
-  }, [user, reset])
+  }, [user, setValue])
 
   const onSubmit = async (data: UpdateUserForm) => {
     if (!user) return
 
     try {
       setLoading(true)
-      const updated = await UserApiService.update(user.id, data)
+      const updated = await UserApiService.update(user.__id, data)
       toast.success('Usuario actualizado exitosamente')
       onUserUpdated(updated)
       onClose()
@@ -66,8 +64,8 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Nombre</label>
-          <Input {...register('displayName')} disabled={loading} />
-          {errors.displayName && <p className="text-sm text-red-600">{errors.displayName.message}</p>}
+          <Input {...register('name')} disabled={loading} />
+          {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -80,15 +78,15 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">XP</label>
-          <Input type="number" {...register('xp', { valueAsNumber: true })} disabled={loading} />
-          {errors.xp && <p className="text-sm text-red-600">{errors.xp.message}</p>}
+          <label className="text-sm font-medium text-gray-700">URL de Foto de Perfil</label>
+          <Input {...register('profilePicture')} disabled={loading} placeholder="https://..." />
+          {errors.profilePicture && <p className="text-sm text-red-600">{errors.profilePicture.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Nivel</label>
-          <Input type="number" {...register('level', { valueAsNumber: true })} disabled={loading} />
-          {errors.level && <p className="text-sm text-red-600">{errors.level.message}</p>}
+          <label className="text-sm font-medium text-gray-700">ID Curso Actual</label>
+          <Input {...register('currentCourseId')} disabled={loading} placeholder="Opcional" />
+          {errors.currentCourseId && <p className="text-sm text-red-600">{errors.currentCourseId.message}</p>}
         </div>
 
         <div className="flex justify-end gap-2 pt-4">

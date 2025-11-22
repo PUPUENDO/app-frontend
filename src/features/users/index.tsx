@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Plus, Search, Edit3, Trash2, User, UserCog } from 'lucide-react'
 import { toast } from 'sonner'
-import { UserApiService } from './UserApiService'
-import type { User as UserType } from './types'
-import { usePermissions } from '@/hooks/use-permissions'
+import { Edit3, Trash2, User as UserIcon, Shield, GraduationCap } from 'lucide-react'
 
-const UsersPage: React.FC = () => {
-  const [users, setUsers] = useState<UserType[]>([])
+import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/data-table'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
+import { UserApiService } from './UserApiService'
+import type { User } from './types'
+import { EditUserModal } from './components/EditUserModal'
+import { DeleteUserModal } from './components/DeleteUserModal'
+
+export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const { isAdmin } = usePermissions()
+  const [searchValue, setSearchValue] = useState('')
+
+  // Modal states
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [deletingUser, setDeletingUser] = useState<User | null>(null)
 
   useEffect(() => {
     fetchUsers()
@@ -31,142 +38,115 @@ const UsersPage: React.FC = () => {
     }
   }
 
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers(users.map(u => u.__id === updatedUser.__id ? updatedUser : u))
+  }
+
+  const handleUserDeleted = (userId: string) => {
+    setUsers(users.filter(u => u.__id !== userId))
+  }
+
   const filteredUsers = users.filter(user =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (user.displayName && user.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+    user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
+    user.name.toLowerCase().includes(searchValue.toLowerCase())
   )
 
-  if (!isAdmin()) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <UserCog className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Acceso Denegado
-            </h3>
-            <p className="text-gray-500">
-              No tienes permisos para ver esta página
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando usuarios...</p>
+  const columns = [
+    {
+      key: 'avatar',
+      label: 'Usuario',
+      render: (user: User) => (
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarImage src={user.profilePicture} alt={user.name} />
+            <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium text-gray-900">{user.name}</div>
+            <div className="text-xs text-gray-500">{user.email}</div>
+          </div>
         </div>
-      </div>
-    )
-  }
+      )
+    },
+    {
+      key: 'role',
+      label: 'Rol',
+      render: (user: User) => (
+        <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="flex w-fit items-center gap-1">
+          {user.role === 'admin' ? <Shield size={12} /> : <GraduationCap size={12} />}
+          {user.role === 'admin' ? 'Admin' : 'Estudiante'}
+        </Badge>
+      )
+    },
+    {
+      key: 'xp',
+      label: 'Progreso',
+      render: (user: User) => (
+        <div className="text-sm">
+          <div className="font-medium text-yellow-600">{user.xp || 0} XP</div>
+          <div className="text-xs text-gray-500">
+            {user.stats?.totalLessonsCompleted || 0} lecciones
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Registrado',
+      render: (user: User) => (
+        <span className="text-sm text-gray-500">
+          {new Date(user.createdAt).toLocaleDateString()}
+        </span>
+      )
+    }
+  ]
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Header */}
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
-          <p className="text-gray-600 mt-2">
-            Administra los usuarios del sistema
-          </p>
-        </div>
-        <Button className="flex items-center gap-2">
-          <Plus size={16} />
-          Nuevo Usuario
-        </Button>
-      </div>
-
-      {/* Search */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-          <input
-            type="text"
-            placeholder="Buscar usuarios..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+          <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
+          <p className="text-gray-500">Administra los usuarios registrados en la plataforma</p>
         </div>
       </div>
 
-      {/* Users List */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Usuarios ({filteredUsers.length})
-          </h2>
-        </div>
-        <div className="p-6">
-          {filteredUsers.length === 0 ? (
-            <div className="text-center py-12">
-              <UserCog className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? 'No se encontraron usuarios' : 'No hay usuarios'}
-              </h3>
-              <p className="text-gray-500 mb-4">
-                {searchTerm 
-                  ? `No hay usuarios que coincidan con "${searchTerm}"` 
-                  : 'Comienza agregando el primer usuario'
-                }
-              </p>
-              {!searchTerm && (
-                <Button className="flex items-center gap-2 mx-auto">
-                  <Plus size={16} />
-                  Agregar Primer Usuario
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredUsers.map((user) => (
-                <div key={user.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="h-6 w-6 text-blue-600" />
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {user.displayName || user.email}
-                        </h3>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                            {user.role === 'admin' ? 'Administrador' : 'Estudiante'}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            Nivel {user.level || 1} · {user.xp || 0} XP
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <Edit3 size={14} className="mr-1" />
-                        Editar
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                        <Trash2 size={14} className="mr-1" />
-                        Eliminar
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <DataTable
+        data={filteredUsers.map(u => ({ ...u, id: u.__id }))}
+        columns={columns}
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+        loading={loading}
+        emptyIcon={<UserIcon className="h-12 w-12 text-gray-300" />}
+        emptyMessage="No hay usuarios registrados"
+        actions={(user) => (
+          <>
+            <Button variant="ghost" size="icon" onClick={() => setEditingUser(users.find(u => u.__id === user.id) || null)}>
+              <Edit3 className="h-4 w-4 text-blue-500" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => setDeletingUser(users.find(u => u.__id === user.id) || null)}>
+              <Trash2 className="h-4 w-4 text-red-500" />
+            </Button>
+          </>
+        )}
+      />
+
+      {editingUser && (
+        <EditUserModal
+          isOpen={!!editingUser}
+          onClose={() => setEditingUser(null)}
+          user={editingUser}
+          onUserUpdated={handleUserUpdated}
+        />
+      )}
+
+      {deletingUser && (
+        <DeleteUserModal
+          isOpen={!!deletingUser}
+          onClose={() => setDeletingUser(null)}
+          user={deletingUser}
+          onUserDeleted={handleUserDeleted}
+        />
+      )}
     </div>
   )
 }
-
-export default UsersPage
