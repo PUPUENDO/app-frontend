@@ -5,9 +5,9 @@ export const UserApiService = {
   findAll: async (): Promise<User[]> => {
     try {
       const response = await api.get('/users');
-      
+
       const users = Array.isArray(response.data) ? response.data : [];
-      
+
       return users;
     } catch (error) {
       console.error('❌ Error fetching users:', error);
@@ -18,7 +18,7 @@ export const UserApiService = {
   findById: async (id: string): Promise<User> => {
     try {
       const response = await api.get(`/users/${id}`);
-      
+
       // El backend retorna el objeto directo
       return response.data;
     } catch (error) {
@@ -30,7 +30,7 @@ export const UserApiService = {
   create: async (user: CreateUserForm): Promise<User> => {
     try {
       const response = await api.post('/users', user);
-      
+
       // El backend retorna el objeto directo
       return response.data;
     } catch (error) {
@@ -42,7 +42,7 @@ export const UserApiService = {
   update: async (id: string, user: UpdateUserForm): Promise<User> => {
     try {
       const response = await api.put(`/users/${id}`, user);
-      
+
       return response.data;
     } catch (error) {
       console.error(`❌ Error actualizando usuario ${id}:`, error);
@@ -59,10 +59,11 @@ export const UserApiService = {
     }
   },
 
-  updateXP: async (id: string, xp: number): Promise<User> => {
+  updateXP: async (id: string, points: number): Promise<User> => {
     try {
-      const response = await api.patch(`/users/${id}/xp`, { xp });
-      
+      // Endpoint espera { points: number }
+      const response = await api.patch(`/users/${id}/xp`, { points });
+
       return response.data;
     } catch (error) {
       console.error(`❌ Error actualizando XP del usuario ${id}:`, error);
